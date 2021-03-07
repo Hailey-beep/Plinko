@@ -1,13 +1,19 @@
-var Engine = Matter.Engine,
+const Engine = Matter.Engine,
   World = Matter.World,
   Events = Matter.Events,
   Bodies = Matter.Bodies;
  
-var particles = [];
+//var particles = [];
 var plinkos = [];
+var divisions = [];
 
 var divisionHeight=300;
-var score =0;
+//Added score varable and game state
+var score = 0;
+var turns = 0;
+var gameState = "start";
+var particle;
+
 function setup() {
   createCanvas(800, 800);
   engine = Engine.create();
@@ -44,7 +50,6 @@ function setup() {
        plinkos.push(new Plinko(j,375));
     }
 
-    
 
     
 }
@@ -54,7 +59,9 @@ function setup() {
 function draw() {
   background("black");
   textSize(20)
- //text("Score : "+score,20,30);
+  //Added score and turns left
+  text("Score: "+score,20,30);
+  text("turns left: "+(5-turns),650,30);
   Engine.update(engine);
  
   
@@ -63,17 +70,68 @@ function draw() {
      plinkos[i].display();
      
    }
-   if(frameCount%60===0){
-     particles.push(new particle(random(width/2-30, width/2+30), 10,10));
-     score++;
-   }
- 
-  for (var j = 0; j < particles.length; j++) {
+
    
-     particles[j].display();
-   }
+     if(particle!=null) {
+        particle.display();
+
+       if(particle.body.position.y > 760) {
+
+        turns++;
+        gameState = "start";
+
+        if(particle!=null && particle.body.position.x < 300) {
+          score=score+500;
+          particle = null;
+        }
+        if(particle!=null && particle.body.position.x > 300 && particle.body.position.x < 600) {
+          score=score+100;
+          particle = null;
+        }
+        if(particle!=null && particle.body.position.x > 600 && particle.body.position.x < 900) {
+          score=score+200;
+          particle = null;
+        }
+       }
+     }
+   
    for (var k = 0; k < divisions.length; k++) {
      
      divisions[k].display();
    }
+   
+   //Added the text for the divisions
+   push()
+   textSize(30)
+   textAlign(CENTER)
+   for(var i=0; i<4; i++) {
+     text("500",40+80*i,535);
+   }
+   for(var i=0; i<3; i++) {
+     text("100",360+80*i,535);
+     text("200",600+80*i,535);
+   }
+   pop()
+
+   //Varable count
+   if(turns>=5) {
+     gameState = "end";
+   }
+
+   if(gameState === "end") {
+     push()
+     textSize(100)
+     fill("red")
+     text("GameOver", 150, 300);
+     pop()
+   }
+}
+
+//Added the function to make particles
+function mousePressed() {
+
+  if(gameState === "start") {
+    particle = new Particle(mouseX, 10, 10, 10);
+    gameState = "drop";
+  }
 }
