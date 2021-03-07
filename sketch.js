@@ -130,7 +130,7 @@ function draw() {
 //Added the function to make particles
 function mousePressed() {
 
-  if(gameState === "start") {
+  if(gameState === "start" && mouseX < 800) {
     particle = new Particle(mouseX, 10, 10, 10);
     gameState = "drop";
   }
